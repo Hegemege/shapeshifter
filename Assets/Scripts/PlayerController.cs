@@ -37,6 +37,8 @@ public class PlayerController : MonoBehaviour
 		}
 
 		float dt = Time.deltaTime;
+		Vector3 asd = new Vector3(0, 0, 0);
+
 		rb.AddTorque(
 			-inputManager.HorizontalInput * dt * RotationSpeed,
 			0f,
