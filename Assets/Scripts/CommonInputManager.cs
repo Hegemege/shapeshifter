@@ -107,7 +107,49 @@ public class CommonInputManager : MonoBehaviour
 		}
 	}
 
-	public bool SwapInput
+    public float HorizontalCameraInput
+    {
+        get
+        {
+            var inputValue = 0f;
+
+            // Keyboard input
+            inputValue += Input.GetAxis("Mouse X");
+
+            // Gamepad input
+#if (UNITY_EDITOR_WIN || UNITY_STANDALONE_WIN)
+            inputValue += state.ThumbSticks.Right.X;
+#endif
+#if (UNITY_EDITOR_OSX || UNITY_STANDALONE_OSX)
+            inputValue += Input.GetAxis("Horizontal_joystick_right_osx");
+#endif
+
+            return inputValue;
+        }
+    }
+
+    public float HorizontalVerticalInput
+    {
+        get
+        {
+            var inputValue = 0f;
+
+            // Keyboard input
+            inputValue += Input.GetAxis("Mouse Y");
+
+            // Gamepad input
+#if (UNITY_EDITOR_WIN || UNITY_STANDALONE_WIN)
+            inputValue += state.ThumbSticks.Right.Y;
+#endif
+#if (UNITY_EDITOR_OSX || UNITY_STANDALONE_OSX)
+            inputValue += Input.GetAxis("Vertical_joystick_right_osx");
+#endif
+
+            return inputValue;
+        }
+    }
+
+    public bool SwapInput
 	{
 		get
 		{
