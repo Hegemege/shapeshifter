@@ -4,18 +4,25 @@ using System.Collections.Generic;
 
 public class PlayerController : MonoBehaviour
 {
-	public Shape StartingShape;
-	public List<Shape> Shapes;
+	public GameObject StartingShape;
+	public List<GameObject> Shapes;
+
+	public float RotationSpeed;
+	public float ForwardForce;
+	public float JumpForce;
 
 	[HideInInspector]
-	public Shape CurrentShape;
+	public GameObject CurrentShape;
 
-    private CommonInputManager inputManager;
+	private CommonInputManager inputManager;
 
-    void Awake()
-    {
-        inputManager = CommonInputManager.instance;
-    }
+	Rigidbody rb;
+
+	void Awake()
+	{
+		inputManager = CommonInputManager.instance;
+		rb = GetComponent<Rigidbody>();
+	}
 
 	void Start()
 	{
@@ -28,23 +35,42 @@ public class PlayerController : MonoBehaviour
 		{
 			ShiftTo(NextShape());
 		}
+
+		float dt = Time.deltaTime;
+		rb.AddTorque(
+			-inputManager.HorizontalInput * dt * RotationSpeed,
+			0f,
+			-inputManager.VerticalInput * dt * RotationSpeed
+		);
+		rb.AddForce(
+			-inputManager.HorizontalInput * dt * ForwardForce,
+			0f,
+			-inputManager.VerticalInput * dt * ForwardForce
+		);
 	}
 
-	Shape NextShape()
+	GameObject NextShape()
 	{
 		int index = Shapes.IndexOf(CurrentShape) + 1;
 		if (index >= Shapes.Count) index = 0;
 		return Shapes[index];
 	}
 
-	void ShiftTo(Shape toShape)
+	void ShiftTo(GameObject toShape)
 	{
-		foreach (Shape shape in Shapes)
+		foreach (GameObject shape in Shapes)
 		{
 			if (shape.Equals(toShape))
 			{
 				CurrentShape = shape;
 				shape.gameObject.SetActive(true);
+				transform.rotation = Quaternion.Euler(new Vector3(
+					0f,
+					transform.rotation.y,
+					0f
+				));
+
+				rb.AddForce(0f, JumpForce, 0f);
 			}
 			else
 			{

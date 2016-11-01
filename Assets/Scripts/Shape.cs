@@ -23,9 +23,9 @@ public class Shape : MonoBehaviour
 		Debug.Log(inputManager.HorizontalInput);
 		float dt = Time.deltaTime;
 		rb.AddTorque(
-			inputManager.HorizontalInput * dt * 100,
+			-inputManager.HorizontalInput * dt * 100,
 			0f,
-			inputManager.VerticalInput * dt * 100
+			-inputManager.VerticalInput * dt * 100
 		);
 	}
 }
