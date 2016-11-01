@@ -7,115 +7,122 @@ using XInputDotNetPure;
 
 public class CommonInputManager : MonoBehaviour
 {
-    // X360 controller index used by XInput
+	public static CommonInputManager instance;
+
+	// X360 controller index used by XInput
 #if (UNITY_EDITOR_WIN || UNITY_STANDALONE_WIN)
-    private PlayerIndex playerIndex;
-    private bool playerIndexSet;
-    private GamePadState state;
-    private GamePadState previousState;
+	private PlayerIndex playerIndex;
+	private bool playerIndexSet;
+	private GamePadState state;
+	private GamePadState previousState;
 #endif
 
-    void Awake()
-    {
-        // Finds the first connected xbox 360 controller
+	void Awake()
+	{
+		// Singleton
+		if (instance == null) instance = this;
+		else if (!instance.Equals(this)) Destroy(gameObject);
+		DontDestroyOnLoad(gameObject);
+
+		// Finds the first connected xbox 360 controller
 #if (UNITY_EDITOR_WIN || UNITY_STANDALONE_WIN)
-        playerIndexSet = false;
-        for (int i = 0; i < 4; ++i)
-        {
-            PlayerIndex testPlayerIndex = (PlayerIndex)i;
-            GamePadState testState = GamePad.GetState(testPlayerIndex);
-            if (testState.IsConnected)
-            {
-                Debug.Log(string.Format("GamePad found {0}", testPlayerIndex));
-                if (!playerIndexSet)
-                {
-                    playerIndex = testPlayerIndex;
-                    playerIndexSet = true;
-                }
-            }
-        }
+		playerIndexSet = false;
+		for (int i = 0; i < 4; ++i)
+		{
+			PlayerIndex testPlayerIndex = (PlayerIndex)i;
+			GamePadState testState = GamePad.GetState(testPlayerIndex);
+			if (testState.IsConnected)
+			{
+				Debug.Log(string.Format("GamePad found {0}", testPlayerIndex));
+				if (!playerIndexSet)
+				{
+					playerIndex = testPlayerIndex;
+					playerIndexSet = true;
+				}
+			}
+		}
 #endif
-    }
+	}
 
-    // Input properties
+	// Input properties
 
-    /// <summary>
-    /// Returns horizontal input from any input defined input source in range [-1f, 1f].
-    /// </summary>
-    public float HorizontalInput
-    {
-        get
-        {
-            var inputValue = 0f;
+	/// <summary>
+	/// Returns horizontal input from any input defined input source in range [-1f, 1f].
+	/// </summary>
+	public float HorizontalInput
+	{
+		get
+		{
+			var inputValue = 0f;
 
-            // Keyboard input
-            inputValue += Input.GetAxis("Horizontal_kb");
+			// Keyboard input
+			inputValue += Input.GetAxis("Horizontal_kb");
 
-            // Gamepad input
+			// Gamepad input
 #if (UNITY_EDITOR_WIN || UNITY_STANDALONE_WIN)
-            inputValue += state.ThumbSticks.Left.X;
+			inputValue += state.ThumbSticks.Left.X;
 #endif
 #if (UNITY_EDITOR_OSX || UNITY_STANDALONE_OSX)
             inputValue += Input.GetAxis("Horizontal_joystick_osx");
 #endif
 
-            return Mathf.Clamp(inputValue, -1f, 1f);
-        }
-    }
+			return Mathf.Clamp(inputValue, -1f, 1f);
+		}
+	}
 
-    /// <summary>
-    /// Returns vertical input from any input defined input source in range [-1f, 1f].
-    /// </summary>
-    public float VerticalInput
-    {
-        get
-        {
-            var inputValue = 0f;
+	/// <summary>
+	/// Returns vertical input from any input defined input source in range [-1f, 1f].
+	/// </summary>
+	public float VerticalInput
+	{
+		get
+		{
+			var inputValue = 0f;
 
-            // Keyboard input
-            inputValue += Input.GetAxis("Vertical_kb");
+			// Keyboard input
+			inputValue += Input.GetAxis("Vertical_kb");
 
-            // Gamepad input
+			// Gamepad input
 #if (UNITY_EDITOR_WIN || UNITY_STANDALONE_WIN)
-            inputValue += state.ThumbSticks.Left.Y;
+			inputValue += state.ThumbSticks.Left.Y;
 #endif
 #if (UNITY_EDITOR_OSX || UNITY_STANDALONE_OSX)
             inputValue += Input.GetAxis("Vertical_joystick_osx");
 #endif
 
-            return Mathf.Clamp(inputValue, -1f, 1f);
-        }
-    }
+			return Mathf.Clamp(inputValue, -1f, 1f);
+		}
+	}
 
-    public float SwapInput
-    {
-        get
-        {
-            var inputValue = 0f;
+	public float SwapInput
+	{
+		get
+		{
+			var inputValue = 0f;
 
-            // Keyboard input
-            inputValue += Input.GetAxis("Spacebar");
+			// Keyboard input
+			inputValue += Input.GetAxis("Spacebar");
 
-            // Gamepad input
+			// Gamepad input
 #if (UNITY_EDITOR_WIN || UNITY_STANDALONE_WIN)
-            inputValue += state.Buttons.A == ButtonState.Pressed ? 1f : 0f;
+			inputValue += state.Buttons.A == ButtonState.Pressed ? 1f : 0f;
 #endif
 #if (UNITY_EDITOR_OSX || UNITY_STANDALONE_OSX)
             inputValue += Input.GetAxis("Swap_joystick_osx");
 #endif
 
-            return Mathf.Clamp(inputValue, 0f, 1f);
-        }
-    }
+			return Mathf.Clamp(inputValue, 0f, 1f);
+		}
+	}
 
 
-    void Update()
-    {
-        // Update the state for XInput
+	void Update()
+	{
+		// Update the state for XInput
 #if (UNITY_EDITOR_WIN || UNITY_STANDALONE_WIN)
-        previousState = state;
-        state = GamePad.GetState(playerIndex);
+		previousState = state;
+		state = GamePad.GetState(playerIndex);
 #endif
-    }
+	}
 
 }
