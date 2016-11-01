@@ -10,6 +10,13 @@ public class PlayerController : MonoBehaviour
 	[HideInInspector]
 	public Shape CurrentShape;
 
+    private CommonInputManager inputManager;
+
+    void Awake()
+    {
+        inputManager = CommonInputManager.instance;
+    }
+
 	void Start()
 	{
 		ShiftTo(StartingShape);
@@ -17,7 +24,7 @@ public class PlayerController : MonoBehaviour
 
 	void Update()
 	{
-		if (Input.GetKeyDown("space"))
+		if (inputManager.SwapInput)
 		{
 			ShiftTo(NextShape());
 		}

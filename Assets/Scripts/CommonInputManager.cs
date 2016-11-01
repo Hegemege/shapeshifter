@@ -1,5 +1,6 @@
 ﻿using UnityEngine;
 using System.Collections;
+using System.Collections.Generic;
 
 #if (UNITY_EDITOR_WIN || UNITY_STANDALONE_WIN)
 using XInputDotNetPure;
@@ -17,7 +18,13 @@ public class CommonInputManager : MonoBehaviour
 	private GamePadState previousState;
 #endif
 
-	void Awake()
+    // Controller state for OS X gamepads
+#if (UNITY_EDITOR_OSX || UNITY_STANDALONE_OSX)
+    private Dictionary<string, bool> OSXJoystickPreviousState;
+    private Dictionary<string, bool> OSXJoystickState;
+#endif
+
+    void Awake()
 	{
 		// Singleton
 		if (instance == null) instance = this;
@@ -42,14 +49,20 @@ public class CommonInputManager : MonoBehaviour
 			}
 		}
 #endif
-	}
 
-	// Input properties
+        // Initialize OS X controller states
+#if (UNITY_EDITOR_OSX || UNITY_STANDALONE_OSX)
+        OSXJoystickPreviousState = new Dictionary<string, bool>();
+        OSXJoystickState = new Dictionary<string, bool>();
+#endif
+    }
 
-	/// <summary>
-	/// Returns horizontal input from any input defined input source in range [-1f, 1f].
-	/// </summary>
-	public float HorizontalInput
+    // Input properties
+
+    /// <summary>
+    /// Returns horizontal input from any input defined input source in range [-1f, 1f].
+    /// </summary>
+    public float HorizontalInput
 	{
 		get
 		{
@@ -94,24 +107,24 @@ public class CommonInputManager : MonoBehaviour
 		}
 	}
 
-	public float SwapInput
+	public bool SwapInput
 	{
 		get
 		{
-			var inputValue = 0f;
+            var inputValue = false;
 
 			// Keyboard input
-			inputValue += Input.GetAxis("Spacebar");
+			inputValue |= Input.GetKeyDown("space");
 
 			// Gamepad input
 #if (UNITY_EDITOR_WIN || UNITY_STANDALONE_WIN)
-			inputValue += state.Buttons.A == ButtonState.Pressed ? 1f : 0f;
+			inputValue |= (previousState.Buttons.A == ButtonState.Released && state.Buttons.A == ButtonState.Pressed);
 #endif
 #if (UNITY_EDITOR_OSX || UNITY_STANDALONE_OSX)
-            inputValue += Input.GetAxis("Swap_joystick_osx");
+            inputValue |= (!OSXJoystickPreviousState["Swap_joystick_osx"] && OSXJoystickState["Swap_joystick_osx"]);
 #endif
 
-			return Mathf.Clamp(inputValue, 0f, 1f);
+            return inputValue;
 		}
 	}
 
@@ -123,6 +136,16 @@ public class CommonInputManager : MonoBehaviour
 		previousState = state;
 		state = GamePad.GetState(playerIndex);
 #endif
-	}
+
+        // Update the state for OS X controllers
+#if (UNITY_EDITOR_OSX || UNITY_STANDALONE_OSX)
+        foreach(string key in OSXJoystickState.Keys)
+        {
+            OSXJoystickPreviousState[key] = OSXJoystickState[key];
+        }
+
+        OSXJoystickState["Swap_joystick_osx"] = Input.GetAxis("Swap_joystick_osx") > 0.5f;
+#endif
+    }
 
 }
