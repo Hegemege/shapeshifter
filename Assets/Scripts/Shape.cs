@@ -3,29 +3,17 @@ using System.Collections;
 
 public class Shape : MonoBehaviour
 {
-	[HideInInspector]
-	Rigidbody rb;
+	public ShapeType Type;
 
-	CommonInputManager inputManager;
+	public float RotationSpeed;
+	public float ForwardForce;
 
-	void Awake()
-	{
-		rb = GetComponent<Rigidbody>();
-	}
+	public bool JumpOnShift;
+	public Vector3 JumpForce;
 
-	void Start()
-	{
-		inputManager = CommonInputManager.instance;
-	}
+	public float Mass;
+	public Vector3 CenterOfMass;
 
-	void Update()
-	{
-		Debug.Log(inputManager.HorizontalInput);
-		float dt = Time.deltaTime;
-		rb.AddTorque(
-			-inputManager.HorizontalInput * dt * 100,
-			0f,
-			-inputManager.VerticalInput * dt * 100
-		);
-	}
+	public float Drag;
+	public float AngularDrag;
 }

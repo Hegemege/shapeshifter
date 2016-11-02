@@ -3,5 +3,5 @@ using System.Collections;
 
 public enum ShapeType
 {
-	Sphere, Cube
+	Sphere, Cube, Cylinder
 }

@@ -4,15 +4,11 @@ using System.Collections.Generic;
 
 public class PlayerController : MonoBehaviour
 {
-	public GameObject StartingShape;
-	public List<GameObject> Shapes;
-
-	public float RotationSpeed;
-	public float ForwardForce;
-	public float JumpForce;
+	public Shape StartingShape;
+	public List<Shape> Shapes;
 
 	[HideInInspector]
-	public GameObject CurrentShape;
+	public Shape CurrentShape;
 
 	private CommonInputManager inputManager;
 
@@ -26,6 +22,14 @@ public class PlayerController : MonoBehaviour
 
 	void Start()
 	{
+		// Disable shapes
+		foreach (Shape shape in Shapes)
+		{
+			shape.gameObject.SetActive(false);
+		}
+
+		// Activate the starting shape
+		CurrentShape = StartingShape;
 		ShiftTo(StartingShape);
 	}
 
@@ -37,47 +41,48 @@ public class PlayerController : MonoBehaviour
 		}
 
 		float dt = Time.deltaTime;
-		Vector3 asd = new Vector3(0, 0, 0);
 
 		rb.AddTorque(
-			-inputManager.HorizontalInput * dt * RotationSpeed,
+			-inputManager.HorizontalInput * dt * CurrentShape.RotationSpeed,
 			0f,
-			-inputManager.VerticalInput * dt * RotationSpeed
+			-inputManager.VerticalInput * dt * CurrentShape.RotationSpeed
 		);
+
 		rb.AddForce(
-			-inputManager.HorizontalInput * dt * ForwardForce,
+			-inputManager.HorizontalInput * dt * CurrentShape.ForwardForce,
 			0f,
-			-inputManager.VerticalInput * dt * ForwardForce
+			-inputManager.VerticalInput * dt * CurrentShape.ForwardForce
 		);
 	}
 
-	GameObject NextShape()
+	Shape NextShape()
 	{
 		int index = Shapes.IndexOf(CurrentShape) + 1;
 		if (index >= Shapes.Count) index = 0;
 		return Shapes[index];
 	}
 
-	void ShiftTo(GameObject toShape)
+	void ShiftTo(Shape toShape)
 	{
-		foreach (GameObject shape in Shapes)
-		{
-			if (shape.Equals(toShape))
-			{
-				CurrentShape = shape;
-				shape.gameObject.SetActive(true);
-				transform.rotation = Quaternion.Euler(new Vector3(
-					0f,
-					transform.rotation.y,
-					0f
-				));
+		// Disable old shape and activate the new one
+		CurrentShape.gameObject.SetActive(false);
+		toShape.gameObject.SetActive(true);
+		CurrentShape = toShape;
 
-				rb.AddForce(0f, JumpForce, 0f);
-			}
-			else
-			{
-				shape.gameObject.SetActive(false);
-			}
-		}
+		// Reset orientation
+		transform.rotation = Quaternion.Euler(new Vector3(
+			0f,
+			transform.rotation.y,
+			0f
+		));
+
+		// Update rigidbody params
+		rb.mass = toShape.Mass;
+		rb.centerOfMass = toShape.CenterOfMass;
+		rb.drag = toShape.Drag;
+		rb.angularDrag = toShape.AngularDrag;
+
+		// Jump
+		if (toShape.JumpOnShift) rb.AddForce(toShape.JumpForce.x, toShape.JumpForce.y, toShape.JumpForce.z);
 	}
 }
