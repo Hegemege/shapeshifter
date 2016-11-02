@@ -3,13 +3,20 @@ using System.Collections;
 
 public class CameraController : MonoBehaviour
 {
+    [HideInInspector]
 	public Rigidbody Target;
+
 	public float Distance;
 	public Vector3 CameraOffset;
 	public Vector3 LookOffset;
 	public float Speed;
 
 	Vector3 destination;
+
+    void Awake()
+    {
+        Target = GameObject.FindWithTag("Player").GetComponent<Rigidbody>();
+    }
 
 	void Start()
 	{

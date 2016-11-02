@@ -12,13 +12,14 @@ public class PlayerController : MonoBehaviour
 
 	private CommonInputManager inputManager;
 
-    public GameObject CameraReference;
+    private GameObject cameraReference;
 
 	private Rigidbody rb;
 
 	void Awake()
 	{
 		inputManager = CommonInputManager.instance;
+        cameraReference = GameObject.FindWithTag("MainCamera");
 		rb = GetComponent<Rigidbody>();
 	}
 
@@ -44,28 +45,14 @@ public class PlayerController : MonoBehaviour
 
 		float dt = Time.deltaTime;
 
-        Vector3 cameraForward = (transform.position - CameraReference.transform.position);
+        Vector3 cameraForward = (transform.position - cameraReference.transform.position);
         cameraForward.y = 0f;
         cameraForward.Normalize();
 
         Vector3 cameraRight = Quaternion.AngleAxis(90, Vector3.up) * cameraForward;
 
-        rb.AddTorque(cameraForward * -inputManager.HorizontalInput * dt * RotationSpeed);
-        rb.AddTorque(cameraRight * inputManager.VerticalInput * dt * RotationSpeed);
-
-        /*
-		rb.AddTorque(
-			-inputManager.HorizontalInput * dt * CurrentShape.RotationSpeed,
-			0f,
-			-inputManager.VerticalInput * dt * CurrentShape.RotationSpeed
-		);
-
-		rb.AddForce(
-			-inputManager.HorizontalInput * dt * CurrentShape.ForwardForce,
-			0f,
-			-inputManager.VerticalInput * dt * CurrentShape.ForwardForce
-		);
-        */
+        rb.AddTorque(cameraForward * -inputManager.HorizontalInput * dt * CurrentShape.RotationSpeed);
+        rb.AddTorque(cameraRight * inputManager.VerticalInput * dt * CurrentShape.RotationSpeed);
     }
 
 	Shape NextShape()
