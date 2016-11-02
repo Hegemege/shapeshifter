@@ -53,6 +53,9 @@ public class PlayerController : MonoBehaviour
 
         rb.AddTorque(cameraForward * -inputManager.HorizontalInput * dt * CurrentShape.RotationSpeed);
         rb.AddTorque(cameraRight * inputManager.VerticalInput * dt * CurrentShape.RotationSpeed);
+
+        rb.AddForce(cameraForward * inputManager.VerticalInput * dt * CurrentShape.ForwardForce);
+        rb.AddForce(cameraRight * inputManager.HorizontalInput * dt * CurrentShape.ForwardForce);
     }
 
 	Shape NextShape()
