@@ -12,7 +12,9 @@ public class PlayerController : MonoBehaviour
 
 	private CommonInputManager inputManager;
 
-	Rigidbody rb;
+    public GameObject CameraReference;
+
+	private Rigidbody rb;
 
 	void Awake()
 	{
@@ -42,6 +44,16 @@ public class PlayerController : MonoBehaviour
 
 		float dt = Time.deltaTime;
 
+        Vector3 cameraForward = (transform.position - CameraReference.transform.position);
+        cameraForward.y = 0f;
+        cameraForward.Normalize();
+
+        Vector3 cameraRight = Quaternion.AngleAxis(90, Vector3.up) * cameraForward;
+
+        rb.AddTorque(cameraForward * -inputManager.HorizontalInput * dt * RotationSpeed);
+        rb.AddTorque(cameraRight * inputManager.VerticalInput * dt * RotationSpeed);
+
+        /*
 		rb.AddTorque(
 			-inputManager.HorizontalInput * dt * CurrentShape.RotationSpeed,
 			0f,
@@ -53,7 +65,8 @@ public class PlayerController : MonoBehaviour
 			0f,
 			-inputManager.VerticalInput * dt * CurrentShape.ForwardForce
 		);
-	}
+        */
+    }
 
 	Shape NextShape()
 	{

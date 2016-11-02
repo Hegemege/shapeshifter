@@ -128,7 +128,7 @@ public class CommonInputManager : MonoBehaviour
         }
     }
 
-    public float HorizontalVerticalInput
+    public float VerticalCameraInput
     {
         get
         {
